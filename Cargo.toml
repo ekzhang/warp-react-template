@@ -1,5 +1,5 @@
 [package]
-name = "warp-react-template"
+name = "server"
 version = "0.1.0"
 authors = ["Eric Zhang <ekzhang1@gmail.com>"]
 edition = "2018"

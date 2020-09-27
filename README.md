@@ -6,6 +6,7 @@ This is a very minimal starter template that sets up React (CRA) and Warp.
 
 - Hot reloading on both the frontend and backend in development.
 - Static assets compiled and built for production.
+- Minimal docker image for deployment.
 
 This is still a work in progress. I'm trying to figure out the best way to set
 up my full-stack environment before starting my next project.
@@ -31,5 +32,18 @@ To run the production server:
 scripts/run_prod.sh
 ```
 
-It might be smarter to use a minimal Dockerized deployment, instead, since the
-web server just needs static files and a binary. This is a work in progress.
+To build a minimal Docker image for the production server:
+
+```bash
+docker build .
+```
+
+The included `Dockerfile` does a multi-stage build, with the final binary
+having static linking to musl libc. This means that the image is quite small:
+less than 10 MB in total for the sample application.
+
+## Environment Variables
+
+The server looks for the following environemnt variables at runtime:
+
+- `PORT`: Which port to listen on (`3535` by default).

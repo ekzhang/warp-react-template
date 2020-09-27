@@ -1,0 +1,4 @@
+/.git
+/app/build
+/app/node_modules
+/target
