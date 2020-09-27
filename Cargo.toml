@@ -1,0 +1,14 @@
+[package]
+name = "warp-react-template"
+version = "0.1.0"
+authors = ["Eric Zhang <ekzhang1@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+hyper = "0.13.7"
+listenfd = "0.3.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "0.2", features = ["full"] }
+warp = "0.2"
