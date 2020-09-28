@@ -18,4 +18,5 @@ RUN npm run build
 FROM scratch
 COPY --from=frontend /usr/src/app/build app/build
 COPY --from=backend /home/rust/src/target/x86_64-unknown-linux-musl/release/server .
+USER 1000:1000
 CMD [ "./server" ]
