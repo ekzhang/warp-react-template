@@ -44,6 +44,6 @@ less than 10 MB in total for the sample application.
 
 ## Environment Variables
 
-The server looks for the following environemnt variables at runtime:
+The server looks for the following environment variables at runtime:
 
 - `PORT`: Which port to listen on (`3535` by default).
