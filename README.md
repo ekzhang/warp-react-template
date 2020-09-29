@@ -7,6 +7,7 @@ This is a very minimal starter template that sets up React (CRA) and Warp.
 - Hot reloading on both the frontend and backend in development.
 - Static assets compiled and built for production.
 - Minimal docker image for deployment.
+- GraphQL endpoint on the server through Juniper.
 
 This is still a work in progress. I'm trying to figure out the best way to set
 up my full-stack environment before starting my next project.

@@ -1,6 +1,7 @@
 use routes::routes;
 use server::make_server;
 
+mod graphql;
 mod routes;
 mod server;
 
@@ -14,7 +15,7 @@ async fn main() -> hyper::Result<()> {
         .expect("PORT must be an integer");
 
     let svc = warp::service(routes());
-    let make_svc = hyper::service::make_service_fn(|_: _| {
+    let make_svc = hyper::service::make_service_fn(|_| {
         let svc = svc.clone();
         async move { Ok::<_, std::convert::Infallible>(svc) }
     });
