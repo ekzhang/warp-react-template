@@ -11,7 +11,7 @@ pub fn routes() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone 
         warp::path("api").and(hello.or(echo))
     };
 
-    api.or(files)
+    api.or(files).with(warp::trace::request())
 }
 
 fn hello() -> impl Reply {

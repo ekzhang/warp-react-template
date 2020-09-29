@@ -47,3 +47,4 @@ less than 10 MB in total for the sample application.
 The server looks for the following environment variables at runtime:
 
 - `PORT`: Which port to listen on (`3535` by default).
+- `RUST_LOG`: Logging directives passed to tracing.

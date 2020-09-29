@@ -9,6 +9,8 @@
 # - cargo-watch (`cargo install cargo-watch`)
 # - concurrently (`npm install -g concurrently`)
 
+export RUST_LOG=info
+
 concurrently -n frontend,backend -c blue,red \
     "npm run --prefix app start" \
     "systemfd --color always --no-pid -s http::3535 \
