@@ -6,7 +6,7 @@ RUN cargo build --release
 COPY src src
 COPY sqlx-data.json sqlx-data.json
 ENV SQLX_OFFLINE 1
-RUN touch src/main.rs
+RUN sudo touch src/main.rs
 RUN cargo test --release
 RUN cargo build --release
 

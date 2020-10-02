@@ -7,7 +7,7 @@ This is a minimal starter template that sets up React (CRA) and Warp.
 - Hot reloading on both the frontend and backend in development.
 - Static assets compiled and built for production.
 - Minimal Docker image for deployment.
-- GraphQL endpoint on the server through Juniper.
+- GraphQL endpoint on the server through Async-GraphQL.
 - Compile-time checked SQL and asynchronous pooling through SQLx.
 - Database migrations through SQLx CLI.
 

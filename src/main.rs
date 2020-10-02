@@ -58,12 +58,13 @@ async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     tracing_subscriber::fmt::init();
 
-    let database_url = std::env::var("DATABASE_URL")?;
+    let database_url = std::env::var("DATABASE_URL").expect("Missing DATABASE_URL");
     let pool = PgPool::connect(&database_url).await?;
 
     let port = std::env::var("PORT")
         .unwrap_or("3535".to_string())
-        .parse()?;
+        .parse()
+        .expect("Unable to parse PORT");
 
     let svc = warp::service(routes(pool));
     let make_svc = hyper::service::make_service_fn(|_| {
