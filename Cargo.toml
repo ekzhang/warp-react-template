@@ -6,6 +6,8 @@ edition = "2018"
 publish = false
 
 [dependencies]
+anyhow = "1.0"
+dotenv = "0.15"
 hyper = "0.13"
 juniper = { git = "https://github.com/graphql-rust/juniper", rev = "8b79f5b1f1e7969f92467db62a9d128fec58b1f2" }
 juniper_subscriptions = { git = "https://github.com/graphql-rust/juniper.git", rev = "8b79f5b1f1e7969f92467db62a9d128fec58b1f2" }
@@ -13,6 +15,7 @@ juniper_warp = { git = "https://github.com/graphql-rust/juniper.git", features =
 listenfd = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+sqlx = { version = "0.4.0-beta.1", default-features = false, features = ["runtime-tokio", "macros", "postgres"] }
 tokio = { version = "0.2", features = ["full"] }
 tracing-subscriber = "0.2"
 uuid = { version = "0.8", features = ["v4"] }

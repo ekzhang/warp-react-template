@@ -4,7 +4,9 @@ COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 COPY src src
-RUN sudo touch src/main.rs
+COPY sqlx-data.json sqlx-data.json
+ENV SQLX_OFFLINE 1
+RUN touch src/main.rs
 RUN cargo test --release
 RUN cargo build --release
 

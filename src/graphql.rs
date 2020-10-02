@@ -1,5 +1,5 @@
 use juniper::{EmptySubscription, FieldResult};
-use std::sync::{Arc, RwLock};
+use sqlx::postgres::PgPool;
 use uuid::Uuid;
 
 #[derive(juniper::GraphQLEnum, Clone)]
@@ -26,9 +26,15 @@ struct NewHuman {
     home_planet: String,
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct Context {
-    db: Arc<RwLock<Vec<Human>>>,
+    pool: PgPool,
+}
+
+impl Context {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
 }
 
 impl juniper::Context for Context {}
@@ -63,7 +69,7 @@ impl Mutation {
             appears_in: new_human.appears_in,
             home_planet: new_human.home_planet,
         };
-        context.db.write().unwrap().push(human.clone());
+        // context.db.write().unwrap().push(human.clone());
         Ok(human)
     }
 }
