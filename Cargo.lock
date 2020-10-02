@@ -1708,6 +1708,7 @@ dependencies = [
  "stringprep",
  "thiserror",
  "url",
+ "uuid 0.8.1",
  "whoami",
 ]
 

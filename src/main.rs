@@ -24,19 +24,16 @@ fn routes(pool: PgPool) -> impl Filter<Extract = impl Reply, Error = Rejection> 
 
     // GraphQL endpoints
     let graphql = {
-        let query = warp::path("query")
-            .and(warp::path::end())
-            .and(warp::post())
-            .and(make_graphql_filter(graphql::schema(), context.boxed()));
-
-        let playground = warp::path("playground")
-            .and(warp::path::end())
-            .and(playground_filter(
-                "/graphql/query",
-                Some("/graphql/subscriptions"),
-            ));
-
-        warp::path("graphql").and(query.or(playground))
+        let query = warp::post().and(make_graphql_filter(graphql::schema(), context.boxed()));
+        let playground = warp::get().and(playground_filter("/graphql", Some("/graphql/subscribe")));
+        let subscriptions = warp::ws().map(|_| "Subscriptions unimplemented");
+        warp::path("graphql").and(
+            warp::path::end()
+                .and(query.or(playground))
+                .or(warp::path("subscribe")
+                    .and(warp::path::end())
+                    .and(subscriptions)),
+        )
     };
 
     graphql.or(files).with(warp::trace::request())

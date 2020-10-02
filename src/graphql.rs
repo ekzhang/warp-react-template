@@ -2,8 +2,10 @@ use juniper::{EmptySubscription, FieldResult};
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
 
-#[derive(juniper::GraphQLEnum, Clone)]
+#[derive(juniper::GraphQLEnum, sqlx::Type, Copy, Clone, Debug)]
+#[sqlx(rename = "episode", rename_all = "lowercase")]
 enum Episode {
+    #[sqlx(rename = "new hope")]
     NewHope,
     Empire,
     Jedi,
@@ -14,7 +16,7 @@ enum Episode {
 struct Human {
     id: Uuid,
     name: String,
-    appears_in: Vec<Episode>,
+    appears_in: Option<Episode>,
     home_planet: String,
 }
 
@@ -22,7 +24,7 @@ struct Human {
 #[derive(juniper::GraphQLInputObject)]
 struct NewHuman {
     name: String,
-    appears_in: Vec<Episode>,
+    appears_in: Option<Episode>,
     home_planet: String,
 }
 
@@ -43,18 +45,22 @@ pub struct Query;
 
 #[juniper::graphql_object(Context = Context)]
 impl Query {
-    fn apiVersion() -> &str {
-        "1.0"
+    fn api_version() -> &str {
+        "0.1"
     }
 
-    fn human(_context: &Context, id: Uuid) -> FieldResult<Human> {
-        let h = Human {
-            id,
-            name: "Eric".to_string(),
-            appears_in: vec![Episode::NewHope],
-            home_planet: "Mars".to_string(),
-        };
-        Ok(h)
+    async fn human(context: &Context, id: Uuid) -> FieldResult<Human> {
+        sqlx::query_as_unchecked!(Human, "SELECT * FROM humans WHERE id = $1", id)
+            .fetch_one(&context.pool)
+            .await
+            .map_err(|e| e.into())
+    }
+
+    async fn humans(context: &Context) -> FieldResult<Vec<Human>> {
+        sqlx::query_as_unchecked!(Human, "SELECT * FROM humans")
+            .fetch_all(&context.pool)
+            .await
+            .map_err(|e| e.into())
     }
 }
 
@@ -62,15 +68,21 @@ pub struct Mutation;
 
 #[juniper::graphql_object(Context = Context)]
 impl Mutation {
-    fn createHuman(context: &Context, new_human: NewHuman) -> FieldResult<Human> {
-        let human = Human {
-            id: Uuid::new_v4(),
-            name: new_human.name,
-            appears_in: new_human.appears_in,
-            home_planet: new_human.home_planet,
-        };
-        // context.db.write().unwrap().push(human.clone());
-        Ok(human)
+    async fn create_human(context: &Context, new_human: NewHuman) -> FieldResult<Human> {
+        sqlx::query_as_unchecked!(
+            Human,
+            "
+INSERT INTO humans (name, appears_in, home_planet)
+    VALUES ($1, $2, $3)
+RETURNING *
+",
+            new_human.name,
+            new_human.appears_in,
+            new_human.home_planet,
+        )
+        .fetch_one(&context.pool)
+        .await
+        .map_err(|e| e.into())
     }
 }
 
