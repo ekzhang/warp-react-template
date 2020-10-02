@@ -1,8 +1,10 @@
+use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
+use async_graphql_warp::graphql_subscription;
 use hyper::server::{conn::AddrIncoming, Builder, Server};
-use juniper_warp::{make_graphql_filter, playground_filter};
 use listenfd::ListenFd;
 use sqlx::postgres::PgPool;
-use warp::{Filter, Rejection, Reply};
+use std::convert::Infallible;
+use warp::{http::Response, Filter, Rejection, Reply};
 
 mod graphql;
 
@@ -19,14 +21,26 @@ fn routes(pool: PgPool) -> impl Filter<Extract = impl Reply, Error = Rejection> 
     // Static files, from create-react-app build output
     let files = warp::fs::dir("app/build").or(warp::fs::file("app/build/index.html"));
 
-    let state = graphql::Context::new(pool);
-    let context = warp::any().map(move || state.clone());
-
     // GraphQL endpoints
+    let schema = graphql::schema(pool);
     let graphql = {
-        let query = warp::post().and(make_graphql_filter(graphql::schema(), context.boxed()));
-        let playground = warp::get().and(playground_filter("/graphql", Some("/graphql/subscribe")));
-        let subscriptions = warp::ws().map(|_| "Subscriptions unimplemented");
+        let query = warp::post()
+            .and(async_graphql_warp::graphql(schema.clone()))
+            .and_then(
+                |(schema, request): (graphql::SchemaRoot, async_graphql::Request)| async move {
+                    let resp = schema.execute(request).await;
+                    Ok::<async_graphql_warp::Response, Infallible>(resp.into())
+                },
+            );
+        let playground = warp::get().map(|| {
+            Response::builder()
+                .header("Content-Type", "text/html")
+                .body(playground_source(
+                    GraphQLPlaygroundConfig::new("/graphql")
+                        .subscription_endpoint("/graphql/subscribe"),
+                ))
+        });
+        let subscriptions = graphql_subscription(schema);
         warp::path("graphql").and(
             warp::path::end()
                 .and(query.or(playground))
@@ -54,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
     let svc = warp::service(routes(pool));
     let make_svc = hyper::service::make_service_fn(|_| {
         let svc = svc.clone();
-        async move { Ok::<_, std::convert::Infallible>(svc) }
+        async move { Ok::<_, Infallible>(svc) }
     });
 
     println!("Server listening on http://localhost:{}", port);

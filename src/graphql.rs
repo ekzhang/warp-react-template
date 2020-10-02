@@ -1,8 +1,8 @@
-use juniper::{EmptySubscription, FieldResult};
+use async_graphql::*;
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
 
-#[derive(juniper::GraphQLEnum, sqlx::Type, Copy, Clone, Debug)]
+#[derive(Enum, sqlx::Type, Copy, Clone, Eq, PartialEq)]
 #[sqlx(rename = "episode", rename_all = "lowercase")]
 enum Episode {
     #[sqlx(rename = "new hope")]
@@ -12,7 +12,7 @@ enum Episode {
 }
 
 /// A humanoid creature in the Star Wars universe
-#[derive(juniper::GraphQLObject, Clone)]
+#[derive(SimpleObject, Clone)]
 struct Human {
     id: Uuid,
     name: String,
@@ -21,54 +21,57 @@ struct Human {
 }
 
 /// A humanoid creature in the Star Wars universe
-#[derive(juniper::GraphQLInputObject)]
+#[derive(InputObject)]
 struct NewHuman {
     name: String,
     appears_in: Option<Episode>,
     home_planet: String,
 }
 
-#[derive(Clone)]
-pub struct Context {
+pub struct Query {
     pool: PgPool,
 }
 
-impl Context {
-    pub fn new(pool: PgPool) -> Self {
+impl Query {
+    fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 }
 
-impl juniper::Context for Context {}
-
-pub struct Query;
-
-#[juniper::graphql_object(Context = Context)]
+#[Object]
 impl Query {
-    fn api_version() -> &str {
+    async fn api_version(&self) -> &str {
         "0.1"
     }
 
-    async fn human(context: &Context, id: Uuid) -> FieldResult<Human> {
+    async fn human(&self, id: Uuid) -> Result<Human> {
         sqlx::query_as_unchecked!(Human, "SELECT * FROM humans WHERE id = $1", id)
-            .fetch_one(&context.pool)
+            .fetch_one(&self.pool)
             .await
             .map_err(|e| e.into())
     }
 
-    async fn humans(context: &Context) -> FieldResult<Vec<Human>> {
+    async fn humans(&self) -> Result<Vec<Human>> {
         sqlx::query_as_unchecked!(Human, "SELECT * FROM humans")
-            .fetch_all(&context.pool)
+            .fetch_all(&self.pool)
             .await
             .map_err(|e| e.into())
     }
 }
 
-pub struct Mutation;
+pub struct Mutation {
+    pool: PgPool,
+}
 
-#[juniper::graphql_object(Context = Context)]
 impl Mutation {
-    async fn create_human(context: &Context, new_human: NewHuman) -> FieldResult<Human> {
+    fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+}
+
+#[Object]
+impl Mutation {
+    async fn create_human(&self, new_human: NewHuman) -> Result<Human> {
         sqlx::query_as_unchecked!(
             Human,
             "
@@ -80,14 +83,19 @@ RETURNING *
             new_human.appears_in,
             new_human.home_planet,
         )
-        .fetch_one(&context.pool)
+        .fetch_one(&self.pool)
         .await
         .map_err(|e| e.into())
     }
 }
 
-pub type Schema = juniper::RootNode<'static, Query, Mutation, EmptySubscription<Context>>;
+pub type SchemaRoot = Schema<Query, Mutation, EmptySubscription>;
 
-pub fn schema() -> Schema {
-    Schema::new(Query, Mutation, EmptySubscription::new())
+pub fn schema(pool: PgPool) -> SchemaRoot {
+    Schema::build(
+        Query::new(pool.clone()),
+        Mutation::new(pool.clone()),
+        EmptySubscription,
+    )
+    .finish()
 }
