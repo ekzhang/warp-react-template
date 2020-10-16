@@ -1,4 +1,4 @@
-use async_graphql::*;
+use async_graphql::{extensions::ApolloTracing, *};
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
 
@@ -97,5 +97,6 @@ pub fn schema(pool: PgPool) -> SchemaRoot {
         Mutation::new(pool.clone()),
         EmptySubscription,
     )
+    .extension(ApolloTracing)
     .finish()
 }
