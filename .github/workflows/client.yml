@@ -1,0 +1,45 @@
+name: Client
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+
+      - run: npm ci
+        working-directory: app/
+
+      - uses: wearerequired/lint-action@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          prettier: true
+          prettier_dir: app/
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+
+      - run: npm ci
+        working-directory: app/
+
+      - run: npm test
+        working-directory: app/

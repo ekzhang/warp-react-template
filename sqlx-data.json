@@ -19,14 +19,9 @@
           "name": "appears_in",
           "type_info": {
             "Custom": {
-              "oid": 16464,
               "name": "episode",
               "kind": {
-                "Enum": [
-                  "new hope",
-                  "empire",
-                  "jedi"
-                ]
+                "Enum": ["new hope", "empire", "jedi"]
               }
             }
           }
@@ -38,16 +33,9 @@
         }
       ],
       "parameters": {
-        "Left": [
-          "Uuid"
-        ]
+        "Left": ["Uuid"]
       },
-      "nullable": [
-        false,
-        false,
-        true,
-        false
-      ]
+      "nullable": [false, false, true, false]
     }
   },
   "715b05fe9d83cfbf81c7d958a11e1927b92e66b07a6a1e7076d212f6545e98b4": {
@@ -69,14 +57,9 @@
           "name": "appears_in",
           "type_info": {
             "Custom": {
-              "oid": 16464,
               "name": "episode",
               "kind": {
-                "Enum": [
-                  "new hope",
-                  "empire",
-                  "jedi"
-                ]
+                "Enum": ["new hope", "empire", "jedi"]
               }
             }
           }
@@ -92,26 +75,16 @@
           "Text",
           {
             "Custom": {
-              "oid": 16464,
               "name": "episode",
               "kind": {
-                "Enum": [
-                  "new hope",
-                  "empire",
-                  "jedi"
-                ]
+                "Enum": ["new hope", "empire", "jedi"]
               }
             }
           },
           "Text"
         ]
       },
-      "nullable": [
-        false,
-        false,
-        true,
-        false
-      ]
+      "nullable": [false, false, true, false]
     }
   },
   "f140f267fbfc94341bea87634e0faf154b5428619dea59b23f634f1a98f2eea8": {
@@ -133,14 +106,9 @@
           "name": "appears_in",
           "type_info": {
             "Custom": {
-              "oid": 16464,
               "name": "episode",
               "kind": {
-                "Enum": [
-                  "new hope",
-                  "empire",
-                  "jedi"
-                ]
+                "Enum": ["new hope", "empire", "jedi"]
               }
             }
           }
@@ -154,12 +122,7 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [
-        false,
-        false,
-        true,
-        false
-      ]
+      "nullable": [false, false, true, false]
     }
   }
 }

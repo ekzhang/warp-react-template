@@ -61,6 +61,8 @@ async fn main() -> anyhow::Result<()> {
     let database_url = std::env::var("DATABASE_URL").expect("Missing DATABASE_URL");
     let pool = PgPool::connect(&database_url).await?;
 
+    sqlx::migrate!().run(&pool).await?;
+
     let port = std::env::var("PORT")
         .unwrap_or("3535".to_string())
         .parse()
